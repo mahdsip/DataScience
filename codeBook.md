@@ -6,12 +6,12 @@ The data file generated as result of the script execution has the following vari
 
  * Subject: the integer subject ID.
  * Activity: the string activity name:
-  - Walking
-  - Walking Upstairs
-  - Walking Downstairs
-  - Sitting
-  - Standing
-  - Laying
+  -- Walking
+  -- Walking Upstairs
+  -- Walking Downstairs
+  -- Sitting
+  -- Standing
+  -- Laying
 
 ## Cathegorical Variables
 
