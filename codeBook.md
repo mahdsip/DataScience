@@ -2,7 +2,7 @@
 
 The data file generated as result of the script execution has the following variables:
 
-## Factor Variables
+## Cathegorical Variables
 
  * Subject: the integer subject ID.
  * Activity: the string activity name:
@@ -13,7 +13,7 @@ The data file generated as result of the script execution has the following vari
   -- Standing
   -- Laying
 
-## Cathegorical Variables
+## Meassure Variables (all the units are distance from the axis)
 
  - Time domain body acceleration mean along X, Y, and Z:
   - MeanTimeBodyAccMeanX
