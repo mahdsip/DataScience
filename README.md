@@ -1,3 +1,6 @@
+run_analysis script
+===================
+
 This scripts put all the data comming from sensors from this study http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones into a tidy datasets and after that it summarize all the information grouping by activity and subject obtaining their mean of each variable.
 
 Those are the steps of the script:
