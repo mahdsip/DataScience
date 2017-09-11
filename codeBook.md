@@ -1,6 +1,6 @@
 # Code Book
 
-The data file generated as result of the script execution has two 
+The data file generated as result of the script execution has the following variables:
 
 ## Factor Variables
 
