@@ -6,7 +6,9 @@ The best hints of this practice are:
   * Creation of functions
   * Operate over data splited on several files
   * Operate over parametrized column of a given dataframe
-  
+
+### Introduction
+
 Data
 The zip file containing the data can be downloaded here:
 
