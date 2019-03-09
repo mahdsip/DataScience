@@ -1,0 +1,582 @@
+---
+title: "Curso 2 R Programming"
+author: "Miguel Angel Huerta"
+date: "16 de octubre de 2018"
+output: 
+       rmdformats::readthedown
+---
+
+Datatypes
+---------------
+
+Los dos puntos se usan para declarar secuencias:
+
+![qownnotes-media-y14076](media/9920.png)
+
+![qownnotes-media-n14076](media/26365.png)
+
+Los objetos tienen atributos accesibles por la función attribute(x), tipo, nombre, etc..
+
+**Vectores** son siempre del mismo tipo, estos son los posibles tipos:
+
+
+![qownnotes-media-e14076](media/24783.png)
+
+Si se mezclan tipos se hace coercion, y se le asigna el tipo más aproximado a un vector, por ejemplo si hay un entero y un carácter, se convierte todo a caracter.
+
+Se puede hacer coercion explícita con as.
+
+![qownnotes-media-N14076](media/6899.png)
+
+![qownnotes-media-t14076](media/1655.png)
+
+Las operaciones vectorizadas nos evitan tener que implementar bucles para operar:
+
+![qownnotes-media-U14076](media/21285.png)
+
+Cuando operas con vector con un número simple operas cada elemento del vector por ese número:
+
+cuando haces c(2,5,1) * 2 + 100,
+|o que hace realmente es : c(2,5,1) * c(2, 2, 2) + c(100, 100, 100)
+
+De la misma manera que si operas con dos vectores de distinto tamaño sólo operaran las posiciones coincidentes
+
+c(2,5,6) + c (1,2) = c(3,7,6)
+
+Si combinamos un vector numérico con uno literal, si hacemos paste entre ambos vectores se hace coerción del primero, se transforma en literal y adapta su tamaño al de mayor tamaño
+
+paste(LETTERS, 1:4, sep = "-")
+
+![qownnotes-media-Hr8364](media/302.png)
+
+Si hacemos esto 
+
+y <- x > 4
+
+Nos devuelve en y un vector del mismo tamñano que x con la evaluación de cada elemento de x de la expresión
+
+y <- x[x>4]
+
+Nos devuelve un vector con los elementos de x que cumplen la expresión.
+
+para acceder a valores concretos del vector 
+
+y <- x[c(4,7,10)]
+
+Hay que tener cuidado, porque nada nos impide hacer y[0] que no existe en R o y[400] que tampoco existe en el vector y nos devuelve NA
+
+Si queremos obtener todos menos el elemento en segunda posición, podemos hacerlo con el - 
+
+y <- x[c(-2)] ó x[-c(2, 10)]
+
+Se puede poner nombre a los elementos:
+
+vect <- c(foo = 11, bar = 2, norf = NA)
+
+![qownnotes-media-vM8364](media/32334.png)
+
+se pueden poner nombres a posteriori también
+
+names(vect2) <- c("foo", "bar", "norf")
+
+
+
+
+
+
+Las **listas** permiten tener objetos de distinto tipo:
+
+![qownnotes-media-c14076](media/5369.png)
+
+Una **Matiz** son vectores con un atributo de dimensión. Este atributo en sí mismo es un vector de enteros de longitud 2 (nº columnas y nºfilas)
+![qownnotes-media-g14076](media/7597.png)
+
+Si llenas una matriz con valores consecutivos irá rellenando la matriz de arriba a abajo y de izquierda a derecha por toda la matriz.
+
+![qownnotes-media-J14076](media/9461.png)
+
+
+Además, un vector se puede convertir en matriz añadiendo el atributo dim() 
+
+![qownnotes-media-K14076](media/28614.png)
+
+La última manera es juntando vectores que deben ser del mismo tamaño, o bien en columnas cbind o bien en filas rbind
+
+![qownnotes-media-K14076](media/7456.png)
+
+Se puede operar sobre las matrices de la misma manera que con los vectores, pero usando la notación correcta (la tercera):
+
+![qownnotes-media-p14076](media/7858.png)
+
+Para poner nombre a las columnas de una matriz o dataframe, hay que crear primero un vector con todos los nombres:
+cnames <- c("age", "weight", "bp", "rating", "test")
+
+colnames(matrix)  <- cnames
+
+y lo mismo para las filas:
+
+patients <- c("Bill","Gina","Kelly","Sean")
+rownames(matrix) <- patients
+
+my_data2 <- matrix (1:20,4,5)
+
+![qownnotes-media-no8364](media/27820.png)
+
+
+
+
+Los **Factores** son datos categorizados, que pueden ser ordenables o no. Se puede decir que un factor es vector de enteros en el que cada entero tiene una etiqueta, de manera que podamos usar la etiqueta en lugar del número entero (ejemplo usar masculino/femenino en lugar de 1/2).
+
+De los vectores que están factorizados se pueden sacar directamente tablas sumarizadas con el conteo de cada valor. unclass te dice qué valor entero tiene el factor.
+
+![qownnotes-media-Y14076](media/5241.png)
+
+Para dar un orden a los factores se utiliza el argumento levels(), aquí por ejemplo si no lo usáramos el primer nivel sería "No" por orden alfabético
+
+![qownnotes-media-z14076](media/3992.png)
+
+**Valores nulos** pueden ser NA (vacío) y NaN (Not a Number). NaN es un subconjunto de NA
+
+![qownnotes-media-v14076](media/30040.png)
+
+Para eliminar valores nulos, la función complete.cases nos da las posiciones que tienen valores no nulos:
+
+![qownnotes-media-a14076](media/25937.png)
+
+
+
+
+**DATA FRAMES**
+
+Se usa para guardar datos tabulares. Pueden tener tipos distintos. Ademàs tienen un atributo especial que es row.names, en este caso como no hemos especificado automáticamente son enteros.
+
+![qownnotes-media-l14076](media/11381.png)
+
+En realidad, todos los objetos en R tienen el atributo nombre, no sólo los dataframes, vectores y matrices también.
+
+
+![qownnotes-media-K14076](media/832.png)
+![qownnotes-media-o14076](media/6638.png)
+
+
+
+**Subconjuntos**
+
+Funcionalidad para tomar subconjuntos de datos de una estructura. A continuación se ve cómo extraer elementos de una lista, distinguiendo entre un sólo [ que nos devuelve un objeto del mismo tipo, o [[ que nos devuelve únicamente un elemento.
+
+![qownnotes-media-x14076](media/32558.png)
+
+![qownnotes-media-t14076](media/30288.png)
+
+Tambien podemos utilizar coincidencia parcial para recoger los elementos de una estructura, en este ejemplo vemos que con sólo poner 'a' ya nos devuelve el elemento que comienza por esa letra
+
+![qownnotes-media-V14076](media/9055.png)
+
+Podemos por tanto usando [ pasar el nombre de una columna de un data frame como parámetro a una función. En este ejemplo la función toma de un directorio todos los archivos csv con el nombre coincidente en el vector id, y calcula la media de la columna pasada como parámetro en pollutant, en este caso los CSV tenían 2 agentes, el sulfato y el nitrato, se podían pasar ambos:
+
+![qownnotes-media-L10040](media/8753.png)
+
+
+pollutantmean <- function(directory,pollutant,id = 1:332) {
+
+  TOTAL <- data.frame()
+
+  for (i in 1:length(id)){
+    TEMP = read.csv(file.path(directory,paste(id[i],".csv",sep="")) ,header = TRUE)
+    TOTAL = rbind(TOTAL,TEMP)
+ 
+ }
+  mean(TOTAL[,pollutant],na.rm=TRUE)
+}
+
+A = pollutantmean("C:/Users/MH026898/OneDrive - Cerner Corporation/Workspaces/courses-master/02_RProgramming/specdata","sulfate",c("001","002","003"))
+
+A = 4.278766
+
+**Funciones útiles**
+
+file.path("folder1","folder2","file1.csv") --> Permite acceder al fichero independientemente del sistema operativo, en el caso de linux te devuelve "folder1/folder2/file1.csv"
+
+generar4  números aleatorios del 1 al 10 
+
+v <- sample(10,4)
+
+wich(v > 7) nos da los indices de los elementos que su valor sea mayor que 7
+
+any(v>7 ) devuelve true si encuntra alguno mayor que 7
+
+all(v>7) devuelve true si todos son mayor que 7
+
+generar 30 números aleatorios entre 5 y 10
+
+seq(5, 10, length=30)
+
+generar una secuencia entre 1 y 10
+seq(1,10)
+
+generar secuencia con intervalos de 0,5 (el doble de valores)
+
+seq(1,10,by=0.5)
+
+Repetir un valor n veces
+rep(0, times = 40)
+
+repetir tres valores n veces
+rep(c(0,1, 2), times = 10)
+
+seq_along(x) -> nos da un vector de igual longitud que X y relleno con una secuencia de 1 a length(x)
+
+range(x) -> devuelve el máximo y el mínimo valor de lo que se le pase
+
+split(airquality,airquality$mounth) --> devuelve una lista de dataframes, cada dataframe correspodiente al mes del dataset inicial.
+
+![qownnotes-media-b14140](media/10638.png)
+
+
+Generar números aleatorios según una distribuciòn
+---------------
+
+![qownnotes-media-e13884](media/13237.png)
+
+![qownnotes-media-v13884](media/1581.png)
+
+
+
+![qownnotes-media-n13884](media/4578.png)
+
+Hay que tener en cuenta que si no se cambia el seed, nos van a salir los mismos número aleatorios una y otra vez, como en este caso, al volver a poner el seed = 1 nos salen los mismos número que en la primera vez. Esto es útil si queremos reproducir un resultado, bastará con poner el mismo seed.
+
+![qownnotes-media-Y13884](media/4927.png)
+
+En este ejemplo generamos aleatoriamente valores con una distribución de poisson, además también calculamos la distribución acumnulada en un punto, esto es la probabilidad de que x sea igual o menor a ese valor
+
+![qownnotes-media-c13884](media/29191.png)
+
+Hasta aquí lo que tenemos es la creación de valores discretos que siguen una distribución. Si queremos que sean datos lineales de manera que a un valor de x le corresponda un valor de y, tendremos que hacerlo de la siguiente manera:
+
+Para el caso de el valor de las x tenga distribución normal:
+
+![qownnotes-media-M13884](media/31809.png)
+
+![qownnotes-media-n13884](media/31072.png)
+
+Para el caso de que el valor de las x tenga distribución binomial, por ejemplo "género"
+
+![qownnotes-media-i13884](media/24548.png)
+
+
+La variable x es binomial y sin embargo la variable y sigue siendo normal.
+
+![qownnotes-media-v13884](media/2244.png)
+
+Si los valores de x son continuos y obedecen a una distribución de poisson:
+
+![qownnotes-media-b13884](media/22368.png)
+
+![qownnotes-media-p13884](media/16845.png)
+
+
+
+Estructuras de control
+---------------
+
+![qownnotes-media-Jl1868](media/29374.png)
+
+![qownnotes-media-fT1868](media/25468.png)
+
+![qownnotes-media-Ne1868](media/12739.png)
+
+![qownnotes-media-Xg1868](media/11313.png)
+
+![qownnotes-media-dd1868](media/5367.png)
+
+![qownnotes-media-sE1868](media/27924.png)
+
+Funciones
+---------------
+
+Devuelven lo último que se opera.
+
+![qownnotes-media-Hk5552](media/23419.png)
+
+Podemos incluir parámetros para que no procese nulos, por ejemplo en la función que hemos creado para que calcule la media de todas las columnas de un dataset o matrix.
+
+![qownnotes-media-Tc5552](media/8721.png)
+
+![qownnotes-media-Sh5552](media/10326.png)
+
+![qownnotes-media-aK5552](media/19538.png)
+
+SI una función que queremos usar dentro de nuestra función tiene muchos parámetros y sólo queremos mapearlos de unos a otros se puede hacer con ...
+
+![qownnotes-media-Qd5552](media/15152.png)
+
+![qownnotes-media-Up5552](media/28400.png)
+
+![qownnotes-media-qV5552](media/18314.png)
+
+Ejemplos:
+
+Crear una función que calcule la media
+
+my_mean <- function(my_vector) {
+  # Write your code here!
+  # Remember: the last expression evaluatwill be returned! 
+  sum(my_vector)/length(my_vector)
+
+Función que calcula el resto en una división, y le ponemos un parámetro por defecto porque lo usamos mucho
+
+remainder <- function(num, divisor=2) {
+ evaluated will be returned! 
+  num%%divisor
+}
+
+Usar función como parámetro
+
+evaluate <- function(func, dat){
+ 
+  func(dat)
+}
+
+Usar los puntos suspensivos para parámetros variables, función que añade start y stop a cualquier combinación de palabras que haya en medio
+
+telegram <- function(...){
+   c <- paste(...,"STOP")
+   paste("START",c)
+}
+
+
+coger ciertos parámetos por nombre dentro de los parámetros variables
+
+mad_libs <- function(...){
+  
+  args <- list(...)
+  place <- args[["place"]]
+  adjective  <- args[["adjective"]]
+  noun  <- args[["noun"]]
+  paste("News from", place, "today where", adjective, "students took to the streets in protest of the new", noun, "being installed on campus.")
+}
+
+Crear un operador binario tipo +, que opere con lo que tenga a un lado y al otro, por ejemplo 
+
+"Hola" %p% "mundo" %p% "libre"
+
+"%p%" <- function(left,right){ 
+        paste(left,right)
+  
+}
+
+**Ejercicios de creación de funciones:**
+
+![qownnotes-media-Y12748](media/5044.png)
+
+![qownnotes-media-R12748](media/15254.png)
+
+![qownnotes-media-a12748](media/17183.png)
+
+![qownnotes-media-U12748](media/19781.png)
+
+![qownnotes-media-I12748](media/27642.png)
+
+![qownnotes-media-x12748](media/32125.png)
+
+Fechas
+-------
+
+**FECHAS**
+
+Las fechas en R tienen dos posibles objetos que los contengan
+
+d1 <- as.Date("1969-01-01")
+
+posixlt (el objeto contiene información adicional como segundos, dia de la semana, mes, etc)
+
+![qownnotes-media-Bq7224](media/2804.png)
+
+posixct sólo te da el número de segundos
+
+![qownnotes-media-Oq7224](media/25330.png)
+
+t2 <- as.POSIXlt(Sys.time())
+
+![qownnotes-media-qx7408](media/26606.png)
+
+![qownnotes-media-hw7408](media/4355.png)
+
+Para sacarlo de fechas Posixct existen las funciones weekdays(), month(),etc...
+
+difftime(Sys.time(), t1, units = 'days') porque por defecto nos lo devuelve en minutos
+
+![qownnotes-media-AN7224](media/738.png)
+
+Si queremos ver el contenido interno de la variable sin pasar por la clase, hacemos unclass()
+
+Por ejemplo una variable fecha, si la visualizo, al ser tipo fecha me la muesta con su formato, y si hacemos unclass(fecha) nos devolverá el número de días que han pasado desde 1-1-1970 que es como internamente se representa 
+
+Bucles, lapply,mapply,sapply
+-----------------------------
+**BUCLES**
+lapply siempre devuelve una lista, lo cual hay veces que no es lo más práctico ni eficiente.
+
+![qownnotes-media-qI2776](media/27515.png)
+
+![qownnotes-media-Ca2776](media/19764.png)
+
+sapply sirve para que si todos los elementos que devuelve lapply son del mismo tipo, devolver un vector, así ganar practicidad y eficiencia
+
+![qownnotes-media-Vz2776](media/22967.png)
+
+![qownnotes-media-R14824](media/20022.png)
+
+
+Apply por si queremos iterar sólo por las filas o sólo por las columnas de un dataframe o matrix
+
+![qownnotes-media-xr2776](media/16523.png)
+
+![qownnotes-media-ue2776](media/11126.png)
+
+![qownnotes-media-Vx2776](media/14161.png)
+
+En el primer ejemplo se coge la segunda dimensión, en el siguiente se toma la primera dimension
+
+![qownnotes-media-IG2776](media/12079.png)
+
+![qownnotes-media-PA2776](media/15035.png)
+
+![qownnotes-media-zr2776](media/19837.png)
+
+![qownnotes-media-ME2776](media/27871.png)
+
+![qownnotes-media-HS2776](media/10600.png)
+
+![qownnotes-media-C14824](media/20287.png)
+
+
+![qownnotes-media-af2776](media/28390.png)
+
+![qownnotes-media-Fm2776](media/31591.png)
+
+![qownnotes-media-Y12084](media/15088.png)
+
+
+![qownnotes-media-R12084](media/12629.png)
+
+
+Funciones útiles y trucos
+-------------------------
+
+
+**FUNCION STR**
+
+Junto con summary obtenemos un resumen del contenido de los datos, sin embargo con str obtenemos toda la información sobre el continente de los datos
+
+![qownnotes-media-t14140](media/28424.png)
+
+
+**OPTIMIZACIÓN CÓDIGO**
+
+**TRUCOS PARA LEER TABLAS GRANDES**
+
+read.table o read.csv:
+
+poner comment.char = " " si no hay comentarios en el archivo.
+
+Poner el tipo de las columnas antes para que no lo autocalcule, si se sabe a priori simplemente se añade, si no se puede hacer algo así:
+
+
+![qownnotes-media-e14076](media/3135.png)
+
+Si nos peta la memoria podemos hacer un cálculo rápido de esta manera 
+
+![qownnotes-media-F14076](media/15772.png)
+
+
+Se pueden pasar a disco y recuperar los objetos en memoria con dput y dget
+
+![qownnotes-media-g14076](media/726.png)
+
+![qownnotes-media-l14956](media/16359.png)
+
+![qownnotes-media-g14956](media/32329.png)
+
+Ejemplo, con lm se hacen distintas llamadas internas a otras funciones, para saber cuánto tardan cada una:
+
+![qownnotes-media-O14956](media/30634.png)
+
+![qownnotes-media-H14956](media/1517.png)
+
+![qownnotes-media-E14956](media/30061.png)
+
+![qownnotes-media-G14956](media/21490.png)
+
+![qownnotes-media-o14956](media/4121.png)
+
+![qownnotes-media-K14956](media/13604.png)
+
+![qownnotes-media-a14956](media/11871.png)
+
+![qownnotes-media-h14956](media/5744.png)
+
+![qownnotes-media-O14956](media/31301.png)
+
+![qownnotes-media-J14956](media/29838.png)
+
+![qownnotes-media-l14956](media/28126.png)
+
+**SAMPLING**
+
+![qownnotes-media-X14956](media/28387.png)
+
+![qownnotes-media-k14956](media/7512.png)
+
+![qownnotes-media-x14956](media/421.png)
+
+![qownnotes-media-Y14956](media/25149.png)
+
+![qownnotes-media-Y14956](media/11072.png)
+
+![qownnotes-media-f14956](media/19442.png)
+
+![qownnotes-media-c14956](media/248.png)
+
+![qownnotes-media-C14956](media/31108.png)
+
+![qownnotes-media-E14956](media/30416.png)
+
+![qownnotes-media-X14956](media/16547.png)
+
+
+**GRÁFICAS BÁSICAS**
+
+![qownnotes-media-q14956](media/24235.png)
+
+![qownnotes-media-o14956](media/17903.png)
+
+![qownnotes-media-S14956](media/25266.png)
+
+![qownnotes-media-h14956](media/27251.png)
+
+**Cambiar filas por columnas en un dataframe**
+
+Country.Name 1997 1998 1999 2000
+1     Country1    1    1    1    1
+2     Country2    2    4    7   10
+3     Country3    4    2    1    5
+
+
+```{r, fig.height = 5, fig.width = 5, echo = TRUE, fig.align='center'}
+df <- structure(list(Country.Name = c("Country1", "Country2", "Country3"
+), `1997` = c(1L, 2L, 4L), `1998` = c(1L, 4L, 2L), `1999` = c(1L, 
+7L, 1L), `2000` = c(1L, 10L, 5L)), .Names = c("Country.Name", 
+"1997", "1998", "1999", "2000"), class = "data.frame", row.names = c(NA, 
+-3L))
+
+df2 <- data.frame(t(df[-1]))
+colnames(df2) <- df[, 1]
+
+df2
+```
+
+
+
+
