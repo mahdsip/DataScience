@@ -4,7 +4,7 @@ Author: Miguel Ángel Huerta <br />
 
 ## Course 
 Course Number | Course | Link to Repo | Blog  | Blog (Español)
---- | --- | --- | ---
+--- | --- | --- | --- | ---
 6 |  Statistical Inference |  [Course Repo](https://github.com/mGalarnyk/datasciencecoursera/tree/master/6_%20Statistical_Inference "Statistical Inference Repo") | Coming Soon | Coming Soon 
 5 |  Reproducible Research |  [Course Repo](https://github.com/mGalarnyk/datasciencecoursera/tree/master/5_Reproducible_Research "Reproducible Research Repo") | [Blog](https://medium.com/@GalarnykMichael/reproducible-research-jhu-coursera-course-5-ad0188bfc53b "Review + data.table")| Coming Soon 
 4 |  Exploratory Data Analysis |  [Course Repo](https://github.com/mGalarnyk/datasciencecoursera/tree/master/4_Exploratory_Data_Analysis "Exploratory Data Analysis Repo") | [Blog](https://medium.com/@GalarnykMichael/exploratory-data-analysis-jhu-coursera-course-4-4a908e0d30d8#.g10ri88vo "Review + data.table")| Coming Soon 
