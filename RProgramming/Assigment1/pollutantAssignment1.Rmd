@@ -1,0 +1,129 @@
+---
+title: "Assigment 1 Pollution Data"
+author: "Miguel Angel Huerta"
+date: "9 de marzo de 2019"
+output: 
+       rmdformats::readthedown
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The best hints of this practice are:
+
+  * Creation of functions
+  * Operate over data splited on several files
+  * Operate over parametrized column of a given dataframe
+
+## Pollutant Data Mean
+
+Write a function named 'pollutantmean' that calculates the mean of a pollutant (sulfate or nitrate) across a specified list of monitors. The function 'pollutantmean' takes three arguments: 'directory', 'pollutant', and 'id'. Given a vector monitor ID numbers, 'pollutantmean' reads that monitors' particulate matter data from the directory specified in the 'directory' argument and returns the mean of the pollutant across all of the monitors, ignoring any missing values coded as NA. A prototype of the function is as follows
+
+```{r mean}
+pollutantMean<- function(directory, pollutant, numberOfFiles)   
+  { 
+    sensorData <- data.frame()
+    for (i in 1:numberOfFiles){
+      A <- read.csv(list.files(path = directory, pattern = ".csv", full.names = TRUE)[i])
+      sensorData <- rbind(A,sensorData)
+    }
+    mean(sensorData[[pollutant]],na.rm = TRUE)
+  }
+```
+
+## Complete Cases
+
+Write a function that reads a directory full of files and reports the number of completely observed cases in each data file. The function should return a data frame where the first column is the name of the file and the second column is the number of complete cases. A prototype of this function follows
+
+```{r complete}
+completeCases<- function(directory, numberOfFiles)   
+{ 
+  sensorData <- data.frame()
+  for (i in 1:numberOfFiles){
+    filename <- list.files(path = directory, pattern = ".csv", full.names = TRUE)[i]
+    data <- read.csv(filename)
+    comp <- sum(complete.cases(data))
+    sensorData <- rbind(data.frame(sensor=filename,cases=comp),sensorData)
+  }
+  sensorData
+}
+```
+
+## Correlation between variables under completness treshold
+
+Write a function that takes a directory of data files and a threshold for complete cases and calculates the correlation between sulfate and nitrate for monitor locations where the number of completely observed cases (on all variables) is greater than the threshold. The function should return a vector of correlations for the monitors that meet the threshold requirement. If no monitors meet the threshold requirement, then the function should return a numeric vector of length 0. A prototype of this function follows
+
+
+```{r corr}
+correlationTreshold<- function(directory, numberOfFiles,treshold)   
+{ 
+  name <- vector()
+  corre <- vector()
+  for (i in 1:numberOfFiles){
+    filename <- list.files(path = directory, pattern = ".csv", full.names = TRUE)[i]
+    data <- read.csv(filename)
+    comp <- sum(complete.cases(data))
+    if (comp>treshold)
+    {
+      name <- c(name,filename)
+      #data <- data[complete.cases(data),]
+      corre <- c(corre,cor(x = data$sulfate,y = data$nitrate, use = "complete.obs"))
+    }
+  }  
+    names(corre) <- name
+    corre
+}
+```
+
+Data
+The zip file containing the data can be downloaded here:
+
+specdata.zip [2.4MB]
+The zip file contains 332 comma-separated-value (CSV) files containing pollution monitoring data for fine particulate matter (PM) air pollution at 332 locations in the United States. Each file contains data from a single monitor and the ID number for each monitor is contained in the file name. For example, data for monitor 200 is contained in the file "200.csv". Each file contains three variables:
+
+Date: the date of the observation in YYYY-MM-DD format (year-month-day)
+sulfate: the level of sulfate PM in the air on that date (measured in micrograms per cubic meter)
+nitrate: the level of nitrate PM in the air on that date (measured in micrograms per cubic meter)
+For this programming assignment you will need to unzip this file and create the directory 'specdata'. Once you have unzipped the zip file, do not make any modifications to the files in the 'specdata' directory. In each file you'll notice that there are many days where either sulfate or nitrate (or both) are missing (coded as NA). This is common with air pollution monitoring data in the United States.
+
+```{r getData}
+file="specdata.zip"   
+folder ="specdata/"
+fileURL = "https://d396qusza40orc.cloudfront.net/rprog%2Fdata%2Fspecdata.zip"
+res <- 1
+
+if(!file.exists(file)){
+  res <- tryCatch({download.file(fileURL,
+                                destfile=file,
+                                method="auto")
+                  outDir<-"."
+                  unzip(zipF,exdir=outDir)
+                  },
+                  error=function(e) {
+                  message(paste("URL does not seem to exist:", fileURL))
+                  message("Here's the original error message:")
+                  message(e)
+                  1},
+                  finally = {
+                    message(paste("Processed URL:", fileURL))
+                    message(paste("Processed zipfile:",file))
+                  })
+}
+  if (res!=1) 
+  {  
+    number <- length(list.files(folder,pattern="*.csv"))
+    P <- pollutantMean(folder,"sulfate",number)
+    A <- completeCases(folder,number)
+    tresh <- 100
+    B <- correlationTreshold(folder,number,tresh)
+  
+    paste0("Pollution mean of ",polutant," is ",P )
+    paste0("Number of complete cases:")
+    A
+    paste0("Correlation between pollutant that exceed the completeness treshold:")
+    B
+    }
+
+```
