@@ -20,7 +20,6 @@ Course Number | Course | Link to Repo | Blog  | Blog (Español)
 Github Username | Profile Page | Youtube Channel
 --- | --- | ---
 madhsip | [Github Profile](https://github.com/mahdsip) | [Miguel Ángel Huerta](https://picasa.duckdns.org/)
-randerson112358 | [Github Profile](https://github.com/randerson112358) | [Randerson112358](https://www.youtube.com/channel/UCaV_0qp2NZd319K4_K8Z5SQ)
 Submit |  Pull Request | Your Github Profile Here
 
 ## License
