@@ -1,3 +1,5 @@
+The main benefit of this assigment is to learn how to cache objects to avoid repeated computations, potentially very demmanding
+
 ### Introduction
 
 This second programming assignment will require you to write an R
