@@ -2,24 +2,14 @@
 Author: Miguel Ángel Huerta <br />
 
 
-## Course 
-Course Number | Course | Link to Repo | Blog  | Blog Spanish
+Course Number | Course | Link to Repo | Blog
 --- | --- | --- | ---
-2 |  R Programming |  [Course Repo](https://github.com/mahdsip/DataScience/tree/master/RProgramming "R Programming Repo") | [Blog](https://picasa.duckdns.org/eng/R_Programming_Course_Notes.html") | [Blog](https://picasa.duckdns.org/eng/R_Programming_Course_Notes.html")
-3 |  Getting and Cleaning Data |  [Course Repo](https://github.com/mahdsip/DataScience/tree/master/Getting%20and%20Cleaning%20Data "Getting and Cleaning Data") | [Blog](https://picasa.duckdns.org/eng/Getting_and_Cleaning_Data_Course_Notes.html)
- | [Blog](https://picasa.duckdns.org/datascience/Curso_3_Getting_and_Cleaning_Data.html)
-4 |  Exploratory Data Analysis |  [Course Repo](https://github.com/mahdsip/DataScience/tree/master/Exploratory%20Analysis "Exploratory Data Analysis Repo") | [Blog](https://picasa.duckdns.org/eng/Exploratory_Data_Analysis_Course_Notes.html)
- | [Blog](https://picasa.duckdns.org/datascience/Curso_4_Exploratory_Data_Analysis.html)
-5 |  Reproducible Research |  [Course Repo](https://github.com/mahdsip/DataScience/tree/master/Reproducible%20Research "Reproducible Research Repo") | [Blog](https://picasa.duckdns.org/eng/Reproducible_Research_Course_Notes.html)
- | [Blog](https://picasa.duckdns.org/datascience/Curso_5_Reproducible_research.html)
-6 |  Statistical Inference |  [Course Repo](https://github.com/mahdsip/DataScience/tree/master/Statistical%20Inference "Statistical Inference Repo") | [Blog](https://picasa.duckdns.org/eng/Statistical_Inference_Course_Notes.html)
- | [Blog](https://picasa.duckdns.org/eng/datascience/Curso_6_Statistical_Inference.html)
-7 |  Practical Machine Learning |  [Course Repo](https://github.com/mahdsip/DataScience/tree/master/Practical%20Machine%20Learning "Practical Machine Learning Repo") | [Blog](https://picasa.duckdns.org/eng/Regression_Models_Course_Notes.html)
- | [Blog](https://picasa.duckdns.org/eng/datascience/Curso_7_Regression_Models.html)
-8 |  Developing Data Products |  [Course Repo](https://github.com/mahdsip/DataScience/tree/master/Developing%20Data%20Products "Developing Data Products Repo") | [Blog]()
- | [Blog]()
-9 |  Project Capstone |  [Course Repo](https://github.com/mahdsip/DataScience/tree/master/Project%20Capstone "Project Capstone Repo") | [Blog]()
- | [Blog]()
+6 |  Statistical Inference |  [Course Repo](https://github.com/mGalarnyk/datasciencecoursera/tree/master/6_%20Statistical_Inference "Statistical Inference Repo") | Coming Soon 
+5 |  Reproducible Research |  [Course Repo](https://github.com/mGalarnyk/datasciencecoursera/tree/master/5_Reproducible_Research "Reproducible Research Repo") | [Blog](https://medium.com/@GalarnykMichael/reproducible-research-jhu-coursera-course-5-ad0188bfc53b "Review + data.table")
+4 |  Exploratory Data Analysis |  [Course Repo](https://github.com/mGalarnyk/datasciencecoursera/tree/master/4_Exploratory_Data_Analysis "Exploratory Data Analysis Repo") | [Blog](https://medium.com/@GalarnykMichael/exploratory-data-analysis-jhu-coursera-course-4-4a908e0d30d8#.g10ri88vo "Review + data.table")
+3 |  Getting and Cleaning Data |  [Course Repo](https://github.com/mGalarnyk/datasciencecoursera/tree/master/3_Getting_and_Cleaning_Data "Getting and Cleaning Data") | [Blog](https://medium.com/@GalarnykMichael/getting-and-cleaning-data-jhu-coursera-course-3-c3635747858b#.y93kqfa0u "Review + data.table")
+2 |  R Programming |  [Course Repo](https://github.com/mGalarnyk/datasciencecoursera/tree/master/2_R_Programming "R Programming Repo") | [Blog](https://medium.com/@GalarnykMichael/in-progress-review-course-2-r-programming-jhu-coursera-ad27086d8438#.bzzr29fvo "Review + data.table")
+1 |  The Data Scientist's Toolbox |  [Course Repo](https://github.com/mGalarnyk/datasciencecoursera/tree/master/4_Exploratory_Data_Analysis "Data Scientist's Repo") | [Blog](https://medium.com/@GalarnykMichael/review-course-1-the-data-scientists-toolbox-jhu-coursera-4d7459458821#.5jpg133ln "Review + Going over Parts of Quiz")
 
 
 
