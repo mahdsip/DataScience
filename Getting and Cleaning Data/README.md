@@ -6,4 +6,7 @@ https://github.com/DataScienceSpecialization/courses/tree/master/03_GettingData
 
   * Assignment1 --> Getting Data from 2 different data sources of phone sensors to detect movement (walking, running, laying,etc..) and merge all them in one specific tidy data file
   * Assignment2 --> Getting Data from Chicago Pollution Sensors and get the mean by year and month of O3 and NO2 with dplyr
+  * Extra1 --> Database connection with ODBC, ORACLE and JDBC
+  * Extra2 --> RonFHIR library for FHIR servers
+  * Extra3 --> Webscrapping
 
