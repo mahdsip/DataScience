@@ -1,0 +1,31 @@
+---
+title: "Lista de Espera LEQ"
+author: "Miguel Angel Huerta"
+date: "18 de noviembre de 2018"
+output: html_document
+---
+
+```{r setup}
+load('Octubre.Rdata')
+library(ggplot2)
+
+p = ggplot(data = final, aes(x = especialidad, y = npac))
+p = p + geom_bar(stat='identity')
+p = p + facet_wrap(~hospital,ncol=3)
+p = p + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+p
+
+library(lattice)
+## Convert 'Month' to a factor variable
+
+barchart(especialidad ~ npac | hospital, data = final,
+         main = "Bar Chart in R EXample",
+         layout = c(3,10),
+         xlab = "Yield Value",  
+         auto.key = list(space = "right"),
+         scales = list(x = list(rot = 90)))
+
+
+```
+
+
