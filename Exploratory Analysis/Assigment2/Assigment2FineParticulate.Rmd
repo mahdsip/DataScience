@@ -1,0 +1,102 @@
+---
+title: "US National Emissions Fine Particulate Matter 1999-2008"
+author: "Miguel Angel Huerta"
+date: "16 de octubre de 2018"
+output: 
+       rmdformats::readthedown
+---
+
+##Introduction 
+
+Fine particulate matter (PM2.5) is an ambient air pollutant for which there is strong evidence that it is harmful to human health. In the United States, the Environmental Protection Agency (EPA) is tasked with setting national ambient air quality standards for fine PM and for tracking the emissions of this pollutant into the atmosphere. Approximatly every 3 years, the EPA releases its database on emissions of PM2.5. This database is known as the National Emissions Inventory (NEI). You can read more information about the NEI at the EPA National Emissions Inventory web site.
+
+For each year and for each type of PM source, the NEI records how many tons of PM2.5 were emitted from that source over the course of the entire year. The data that you will use for this assignment are for 1999, 2002, 2005, and 2008.
+```{r , message=FALSE}
+file.name <- "./Source_Classification_Code.rds"
+url       <- "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2FNEI_data.zip"
+zip.file  <- "./data.zip"
+
+if (!file.exists(file.name)) {
+  download.file(url, destfile = zip.file)
+  unzip(zip.file)
+  file.remove(zip.file)
+}
+
+## This first line will likely take a few seconds. Be patient!
+NEI <- readRDS("summarySCC_PM25.rds")
+SCC <- readRDS("Source_Classification_Code.rds")
+```
+
+##Assignment 
+
+The overall goal of this assignment is to explore the National Emissions Inventory database and see what it say about fine particulate matter pollution in the United states over the 10-year period 1999???2008. You may use any R package you want to support your analysis.
+
+Questions
+
+You must address the following questions and tasks in your exploratory analysis. For each question/task you will need to make a single plot. Unless specified, you can use any plotting system in R to make your plot.
+
+  1. Have total emissions from PM2.5 decreased in the United States from 1999 to 2008? Using the base plotting system, make a plot showing the total PM2.5 emission from all sources for each of the years 1999, 2002, 2005, and 2008.
+
+```{r , message=FALSE}
+dataset <- NEI
+ag <- aggregate(by=list(year=dataset$year),dataset$Emissions,sum)
+plot(ag,type = "b")
+```
+
+
+  2. Have total emissions from PM2.5 decreased in the Baltimore City, Maryland (\color{red}{\verb|fips == "24510"|}fips=="24510") from 1999 to 2008? Use the base plotting system to make a plot answering this question.
+  
+```{r , message=FALSE}
+dataset <- NEI
+balt <- subset(dataset,dataset$fips=="24510")
+agbalt <- aggregate(by=list(year=balt$year),balt$Emissions,sum)
+plot(agbalt,type = "b")
+```
+
+
+  3. Of the four types of sources indicated by the \color{red}{\verb|type|}type (point, nonpoint, onroad, nonroad) variable, which of these four sources have seen decreases in emissions from 1999???2008 for Baltimore City? Which have seen increases in emissions from 1999???2008? Use the ggplot2 plotting system to make a plot answer this question.
+  
+```{r , message=FALSE}
+dataset <- NEI
+balt <- subset(dataset,dataset$fips=="24510")
+library(dplyr)
+library(ggplot2)
+emmis <- group_by(balt,type,year)
+emmis <- summarize(emmis, TotalEmm = sum(Emissions))
+qplot(data=emmis,year,TotalEmm,facets = .~type)+geom_line()
+```  
+
+
+  4. Across the United States, how have emissions from coal combustion-related sources changed from 1999???2008?
+
+```{r , message=FALSE} 
+dataset <- NEI
+compl <- merge(dataset,SCC,by = "SCC")
+complComb <- subset(compl,grepl("*Coal",EI.Sector))
+emis2 <- aggregate(by=list(year=complComb$year),complComb$Emissions,sum)
+plot(emis2,type="b")
+```
+
+  5. How have emissions from motor vehicle sources changed from 1999???2008 in Baltimore City?
+
+```{r , message=FALSE}   
+dataset <- NEI
+balt <- subset(dataset,dataset$fips=="24510")
+balt5 <-merge(balt,SCC,by = "SCC")
+balt5 <- subset(balt5,SCC.Level.One=="Mobile Sources"&grepl("Motor",SCC.Level.Three))
+agbalt5 <- aggregate(by=list(year=balt5$year),balt5$Emissions,sum)
+plot(ag,type = "b")
+```
+
+  6. Compare emissions from motor vehicle sources in Baltimore City with emissions from motor vehicle sources in Los Angeles County, California (\color{red}{\verb|fips == "06037"|}fips=="06037"). Which city has seen greater changes over time in motor vehicle emissions?
+
+```{r , message=FALSE}    
+dataset <- NEI
+comparison <- subset(dataset,dataset$fips=="24510"|dataset$fips=="06037")
+comparison <- merge(comparison,SCC,by = "SCC")
+comparison6 <- subset(comparison,SCC.Level.One=="Mobile Sources"&grepl("Motor",SCC.Level.Three))
+agcomparison6 <- group_by(comparison6,fips,year)
+agcomparison6 <- summarize(agcomparison6, TotalEmm = sum(Emissions))
+agcomparison6$fips = ifelse(agcomparison6$fips=="24510","Baltimore","LA")
+qplot(data = agcomparison6,year,TotalEmm, color=fips)+geom_line()
+```
