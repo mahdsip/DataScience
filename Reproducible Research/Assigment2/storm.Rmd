@@ -1,0 +1,114 @@
+---
+title: "Storm"
+author: "Miguel Angel Huerta"
+date: "15 April  2018"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(RCurl)
+library(ggplot2)
+library(data.table)
+library(Hmisc)
+library(dplyr)
+
+if (!file.exists("data")){
+  dir.create("data")
+  fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+  con <- download.file(fileUrl,destfile = "./data/activity.bz2",method = "libcurl")
+}
+
+storm <- read.csv(file = "./data/activity.bz2", sep=",", header=T)
+event <- c("EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "PROPDMGEXP", "CROPDMG", 
+           "CROPDMGEXP")
+data <- storm[event]
+```
+
+#Synopsis
+
+In the present study i am going to make use of public NOAA Storm Database to show the events that are  most harmful with respect to population health and which types of events have the greatest economic consequences.
+
+#Data Analysis
+
+```{r dataAnalysis, echo=TRUE}
+
+
+unique(data$PROPDMGEXP)
+# Assigning values for the property exponent data 
+data$PROPEXP[data$PROPDMGEXP == "K"] <- 1000
+data$PROPEXP[data$PROPDMGEXP == "M"] <- 1e+06
+data$PROPEXP[data$PROPDMGEXP == ""] <- 1
+data$PROPEXP[data$PROPDMGEXP == "B"] <- 1e+09
+data$PROPEXP[data$PROPDMGEXP == "m"] <- 1e+06
+data$PROPEXP[data$PROPDMGEXP == "0"] <- 1
+data$PROPEXP[data$PROPDMGEXP == "5"] <- 1e+05
+data$PROPEXP[data$PROPDMGEXP == "6"] <- 1e+06
+data$PROPEXP[data$PROPDMGEXP == "4"] <- 10000
+data$PROPEXP[data$PROPDMGEXP == "2"] <- 100
+data$PROPEXP[data$PROPDMGEXP == "3"] <- 1000
+data$PROPEXP[data$PROPDMGEXP == "h"] <- 100
+data$PROPEXP[data$PROPDMGEXP == "7"] <- 1e+07
+data$PROPEXP[data$PROPDMGEXP == "H"] <- 100
+data$PROPEXP[data$PROPDMGEXP == "1"] <- 10
+data$PROPEXP[data$PROPDMGEXP == "8"] <- 1e+08
+# Assigning '0' to invalid exponent data
+data$PROPEXP[data$PROPDMGEXP == "+"] <- 0
+data$PROPEXP[data$PROPDMGEXP == "-"] <- 0
+data$PROPEXP[data$PROPDMGEXP == "?"] <- 0
+# Calculating the property damage value
+data$PROPDMGTOT <- data$PROPDMG * data$PROPEXP
+
+unique(data$CROPDMGEXP)
+
+# Assigning values for the crop exponent data 
+data$CROPEXP[data$CROPDMGEXP == "M"] <- 1e+06
+data$CROPEXP[data$CROPDMGEXP == "K"] <- 1000
+data$CROPEXP[data$CROPDMGEXP == "m"] <- 1e+06
+data$CROPEXP[data$CROPDMGEXP == "B"] <- 1e+09
+data$CROPEXP[data$CROPDMGEXP == "0"] <- 1
+data$CROPEXP[data$CROPDMGEXP == "k"] <- 1000
+data$CROPEXP[data$CROPDMGEXP == "2"] <- 100
+data$CROPEXP[data$CROPDMGEXP == ""] <- 1
+# Assigning '0' to invalid exponent data
+data$CROPEXP[data$CROPDMGEXP == "?"] <- 0
+# calculating the crop damage value
+data$CROPDMGTOT <- data$CROPDMG * data$CROPEXP
+
+
+DT <- data.table(data)
+
+PROP <- DT[,sum(PROPDMGTOT),by=EVTYPE]
+PROP <- PROP[order(-PROP$V1),]
+PROP <- PROP[1:5,]
+PROP$V1 <- PROP$V1/1000000
+
+CROP <- DT[,sum(CROPDMGTOT),by=EVTYPE]
+CROP <- CROP[order(-CROP$V1),]
+CROP <- CROP[1:5,]
+CROP$V1 <- CROP$V1/1000000
+
+```
+
+#Results
+
+Here we can see Drought is the  most harmful with respect to population health. Here are the top 5.
+```{r result, echo=TRUE}
+    ggplot(data=CROP, aes(x=CROP$EVTYPE,y=CROP$V1))+
+      geom_bar(stat="identity") +
+      xlab("Event types") +
+      ylab("Millions fatalities") +
+      theme_minimal()
+```
+
+And TSTM WIND have the greatest economic consequences. Here are the top 5.
+```{r resultPROP, echo=TRUE}
+    ggplot(data=PROP, aes(x=PROP$EVTYPE,y=PROP$V1) )+
+      geom_bar(stat="identity") +
+      xlab("Event types") +
+      ylab("Millions $") +
+      theme_minimal()
+
+```
