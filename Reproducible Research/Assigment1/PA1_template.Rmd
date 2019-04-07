@@ -1,0 +1,85 @@
+---
+title: "Reproducible Research 1 FitBit Activity"
+author: "Miguel Angel Huerta"
+date: "16 de octubre de 2018"
+output: 
+       rmdformats::readthedown
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+## Loading and preprocessing the data
+
+```{r gettingData, echo=TRUE,results="hide",message=FALSE,warning=FALSE}
+
+#library(RCurl)
+library(ggplot2)
+library(data.table)
+library(Hmisc)
+
+if (!file.exists("data")){
+  dir.create("data")
+  fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+  con <- download.file(fileUrl,destfile = "./data/activity.zip",method = "libcurl")
+}
+
+csvFile <- unz("./data/activity.zip","activity.csv")
+act <- read.csv(csvFile, sep=",", header=T,colClasses = c("numeric","character","character"),stringsAsFactors = TRUE)
+```
+
+## What is mean total number of steps taken per day?
+
+```{r mean, echo=TRUE}
+DT <- data.table(act)
+stepsByDay <- DT[,mean(steps,na.rm = TRUE),by=interval]
+#stepsByDay <- DT[, j= list(sum(steps),mean(steps),median(steps)), by=interval]
+hist(stepsByDay$V1,xlab = "Total steps per day")
+#qplot(stepsByDay$V1, xlab='Total steps per day', ylab='Frequency using binwith 500', binwidth=500)
+#mean(subset(act,act$steps>0)$steps,na.rm = TRUE)
+#median(subset(act,act$steps>0)$steps,na.rm = TRUE)
+mean(act$steps,na.rm = TRUE)
+median(act$steps,na.rm = TRUE)
+```
+
+## What is the average daily activity pattern?
+```{r mean and media, echo=TRUE}
+p<-ggplot(data=stepsByDay, aes(x=as.integer(interval), y=V1)) +
+  geom_line() +
+    xlab("5-minute interval") + 
+    ylab("avarage number of steps")
+p
+
+stepsByInterval <- DT[, mean(steps,na.rm = TRUE), by=interval]
+stepsByInterval[stepsByInterval$V1==max(stepsByInterval$V1),]
+
+```
+
+## Imputing missing values
+```{r missingData, echo=TRUE}
+
+sum(is.na(act$steps))
+
+activityDataFilled <- act
+activityDataFilled$steps <- impute(activityDataFilled$steps, fun=mean)
+activityDataFilled$steps <- ifelse(activityDataFilled$steps>0,activityDataFilled$steps,mean(activityDataFilled$steps,na.rm = TRUE))
+
+DT2 <- data.table(activityDataFilled)
+stepsByDay2 <- DT2[, mean(steps), by=interval]
+
+hist(stepsByDay2$V1,xlab = "Total steps per day")
+
+mean(stepsByDay2$V1)
+median(stepsByDay2$V1)
+```
+## Are there differences in activity patterns between weekdays and weekends?
+
+```{r weekends, echo=FALSE}
+activityDataFilled$dateType <-  ifelse(as.POSIXlt(activityDataFilled$date)$wday %in% c(0,6), 'weekend', 'weekday')
+averagedactivityDataFilled <- aggregate(steps ~ interval + dateType, data=activityDataFilled, mean)
+ggplot(averagedactivityDataFilled, aes(as.numeric(interval), steps)) + 
+    geom_line() + 
+    facet_grid(dateType ~ .) +
+    xlab("5-minute interval") + 
+    ylab("avarage number of steps")
+```
