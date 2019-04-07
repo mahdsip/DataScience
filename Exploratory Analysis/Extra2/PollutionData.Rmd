@@ -1,0 +1,198 @@
+---
+title: "AirPollution in particulates pm2.5 in US comparison 1999 and 2012"
+author: "Miguel Ángel Huerta"
+date: "6 de abril de 2019"
+output: 
+       rmdformats::readthedown
+---
+
+
+##Introduction
+
+The data set I'm going to use right now for this example, comes from the U.S. Environmental Protection Agency and it involves air pollution monitoring data from the United States. In particular we're looking at fine particulate matter air pollution that's in the air. So particulate matter is, is just a fancy word for dust. So this is just dust that's in the air and it's it's a, it's of concern because we inhale air all the time. 
+
+ So what we're going to do is we're going to look at data from 1999. And, and look at the fairly recent data from 2012. And I want to answer the very basic question. Are the levels on average lower in 2012 than they were in 1999? 
+
+```{r , message=FALSE}
+file.name <- "./RD_501_88101_1999-0.txt"
+url       <- "https://archive.ics.uci.edu/ml/machine-learning-databases/00240/UCI%20HAR%20Dataset.zip"
+zip.file  <- "./pm25_data.zip"
+
+if (!file.exists(file.name)) {
+  #download.file(url, destfile = zip.file)
+  unzip(zip.file)
+  #file.remove(zip.file)
+}
+
+## Read in data from 1999
+
+pm0 <- read.table("pm25_data/RD_501_88101_1999-0.txt", comment.char = "#", header = FALSE, sep = "|", na.strings = "")
+dim(pm0)
+head(pm0)
+cnames <- readLines("pm25_data/RD_501_88101_1999-0.txt", 1)
+print(cnames)
+cnames <- strsplit(cnames, "|", fixed = TRUE)
+print(cnames)
+names(pm0) <- make.names(cnames[[1]])
+head(pm0)
+x0 <- pm0$Sample.Value
+class(x0)
+str(x0)
+summary(x0)
+mean(is.na(x0))  ## Are missing values important here?
+
+## Read in data from 2012
+
+pm1 <- read.table("pm25_data/RD_501_88101_2012-0.txt", comment.char = "#", header = FALSE, sep = "|", na.strings = "", nrow = 1304290)
+names(pm1) <- make.names(cnames[[1]])
+head(pm1)
+dim(pm1)
+x1 <- pm1$Sample.Value
+class(x1)
+```
+
+Lets do our first quick comparison.It seems that at least in the median it has decrease the volume of fine particulates. We see also that the percentage of missing value has decrease from 11% to 5%
+
+```{r , message=FALSE}
+summary(x0)
+summary(x1)
+mean(is.na(x0))
+mean(is.na(x1))
+```
+
+The next thing is to look at the boxplot. If we see first former results we detect that the maximun in 2012 is very hight compared to maximun in 1999, so if we plot this it seems both graphs are a bit skewed, so we can make use of log10 function to avoid this maximun.
+
+The black line, which was the median of this box, that does go down quite a bit. Remember, this is on a log scale, so even a small change can be a big change in the absolute scale. But one thing that you'll notice is that the spread of the data has also increased too. So even though the average levels have gone down, there are more kind of extreme values in the later data.
+
+```{r , message=FALSE}
+boxplot(x0, x1)
+boxplot(log10(x0), log10(x1))
+```
+
+
+The next thing we need to deal with is the negative values. It is impossible to have negative values here. We will look at it by months to detect if there is any pattern related to the date.
+
+We see that there is more values during spring, and also the amount of negative data is during that months, so maybe when the amount of particulates are hight is more difficult to meassure, giving by error negative values. 
+
+```{r , message=FALSE}
+## Check negative values in 'x1'
+summary(x1)
+negative <- x1 < 0
+sum(negative, na.rm = T)
+mean(negative, na.rm = T)
+dates <- pm1$Date
+str(dates)
+dates <- as.Date(as.character(dates), "%Y%m%d")
+str(dates)
+hist(dates, "month")  ## Check what's going on in months 1--6, we see that the first months of the year is where there is more fine particulates
+
+hist(dates[negative], "month")  ## Check what's going on in months 1--6
+```
+
+Lets take a look at a particular city, New York for example. We first must identify if in there exist monitors in both years. There is 10 monitors in New York with data in both years.
+
+```{r , message=FALSE}
+site0 <- unique(subset(pm0, State.Code == 36, c(County.Code, Site.ID)))
+site1 <- unique(subset(pm1, State.Code == 36, c(County.Code, Site.ID)))
+site0 <- paste(site0[,1], site0[,2], sep = ".")
+site1 <- paste(site1[,1], site1[,2], sep = ".")
+str(site0)
+str(site1)
+both <- intersect(site0, site1)
+print(both)
+```
+
+Lets create a new variable called country.site to count how many observations do we have from each monitor in the state of New York
+
+```{r , message=FALSE}
+pm0$county.site <- with(pm0, paste(County.Code, Site.ID, sep = "."))
+pm1$county.site <- with(pm1, paste(County.Code, Site.ID, sep = "."))
+cnt0 <- subset(pm0, State.Code == 36 & county.site %in% both)
+cnt1 <- subset(pm1, State.Code == 36 & county.site %in% both)
+sapply(split(cnt0, cnt0$county.site), nrow)
+sapply(split(cnt1, cnt1$county.site), nrow)
+```
+
+Now we are going to choose just one of those monitors
+
+```{r , message=FALSE}
+## Choose county 63 and side ID 2008
+pm1sub <- subset(pm1, State.Code == 36 & County.Code == 63 & Site.ID == 2008)
+pm0sub <- subset(pm0, State.Code == 36 & County.Code == 63 & Site.ID == 2008)
+dim(pm1sub)
+dim(pm0sub)
+```
+
+We have now the same monitor, lets plot the particulates along the time from both years, first for 1999
+
+```{r , message=FALSE}
+## Plot data for 1999
+dates0 <- pm0sub$Date
+dates0 <- as.Date(as.character(dates0), "%Y%m%d")
+x0sub <- pm0sub$Sample.Value
+plot(dates0, x0sub)
+```
+
+And now for 2012
+
+```{r , message=FALSE}
+## Plot data for 2012
+dates1 <- pm1sub$Date
+x1sub <- pm1sub$Sample.Value
+dates1 <- as.Date(as.character(dates1), "%Y%m%d")
+str(dates1)
+plot(dates1, x1sub)
+
+```
+
+
+And now boths in the same pannel, here we can observe an error that could lead to missundertand the data, it seems the mean in 2012 in bigger than in 1999 when it results that the graphs have different range.
+
+```{r , message=FALSE}
+## Plot data for both years in same panel
+par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+plot(dates0, x0sub, pch = 20)
+abline(h = median(x0sub, na.rm = T))
+plot(dates1, x1sub, pch = 20)  ## Whoa! Different ranges
+abline(h = median(x1sub, na.rm = T))
+
+```
+
+Now the range is correct, and we can observe the mean value is lower in 2012 than in 1999. There is also a very curious thing, that is the data in 1999 is much more spread than in 2012 which is much less variable, so there is much less days with spikes of particulates
+
+```{r , message=FALSE}
+## Find global range
+rng <- range(x0sub, x1sub, na.rm = T)
+rng
+par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+plot(dates0, x0sub, pch = 20, ylim = rng)
+abline(h = median(x0sub, na.rm = T))
+plot(dates1, x1sub, pch = 20, ylim = rng)
+abline(h = median(x1sub, na.rm = T))
+
+```
+
+Lets take a look now instead of a particular monitor, how states are performing in terms of policies to avoid pollutant. In generally speaking, we can see the trend is every state to lower this pollutant particulates.
+
+```{r , message=FALSE}
+## Show state-wide means and make a plot showing trend
+head(pm0)
+mn0 <- with(pm0, tapply(Sample.Value, State.Code, mean, na.rm = T))
+str(mn0)
+summary(mn0)
+mn1 <- with(pm1, tapply(Sample.Value, State.Code, mean, na.rm = T))
+str(mn1)
+
+## Make separate data frames for states / years
+d0 <- data.frame(state = names(mn0), mean = mn0)
+d1 <- data.frame(state = names(mn1), mean = mn1)
+mrg <- merge(d0, d1, by = "state")
+dim(mrg)
+head(mrg)
+
+## Connect lines
+par(mfrow = c(1, 1))
+with(mrg, plot(rep(1, 52), mrg[, 2], xlim = c(.5, 2.5)))
+with(mrg, points(rep(2, 52), mrg[, 3]))
+segments(rep(1, 52), mrg[, 2], rep(2, 52), mrg[, 3])
+```
