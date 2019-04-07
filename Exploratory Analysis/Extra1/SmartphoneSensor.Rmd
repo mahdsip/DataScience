@@ -1,0 +1,168 @@
+---
+title: "Select mobile sensors data to predict movement"
+author: "Miguel Ángel Huerta"
+date: "6 de abril de 2019"
+output: 
+       rmdformats::readthedown
+---
+
+##Introduction
+
+In this case study, I'm going to talk more about exploratory data analysis techniques, and how to use them, on a data set that involves using smart phones, to, kind of, predict human activities. So remember, just any exploratory data analysis, you have to have a sense of kind of like, what you're looking for, what might, and what might be the kind of the key priorities that you want to get outta your data set.
+
+the data set here comes from the University of California Irvine or U.C.I. machine learning archive. And it's based on predicting people's movements. The actual data set was was produced using the Galaxy S2, and but the,the idea is kind of basically the same. So, in each of these's, phones. There's an accelerometer and a gyroscope. And so it helps you kind of, to understand the kind of three dimensional position and acceleration of a person. Assuming that they are holding their phone.
+
+Our big challenge will be, having a huge dataset (7400 rows and 563 variables) where we could start looking at in our variables to try to identify wich of them will be important for our model, where we want to predict which movement the person is doing based on those selected variables. To train our model, will be good not to use the 562 variables.
+
+```{r , message=FALSE}
+file.name <- "./RD_501_88101_1999-0.txt"
+url       <- "https://archive.ics.uci.edu/ml/machine-learning-databases/00240/UCI%20HAR%20Dataset.zip"
+zip.file  <- "./data.zip"
+
+if (!file.exists(file.name)) {
+  download.file(url, destfile = zip.file)
+  unzip(zip.file)
+  file.remove(zip.file)
+}
+
+xvals <- read.table("UCI HAR Dataset/train/X_train.txt")
+yvals <- read.table("UCI HAR Dataset/train/y_train.txt")
+features <- read.table('UCI HAR Dataset/features.txt')
+subject <- read.table("UCI HAR Dataset/train/subject_train.txt")
+```
+
+he data been processed a little bit to make it a little bit easier to use. Basically you get a matrix, The, that has kind of, has the observations on the rows and the various features on columns. And you see that at the bottom here, I've got the activity label which is the kind of the, for each row that tells you what the person was doing at that time. And so for example there is six possible activities that you can be doing; there's laying, sitting, standing. Walking, walking down and walking up
+
+```{r , message=FALSE}
+colnames(xvals) <- features[,2]
+yvals <- yvals[,1]
+yvals[yvals==1]="walk"
+yvals[yvals==2]="walkup"
+yvals[yvals==3]="walkdown"
+yvals[yvals==4]="sitting"
+yvals[yvals==5]="standing"
+yvals[yvals==6]="laying"
+
+xvals$subject <- subject[,1]
+xvals$activity <- yvals
+
+samsungData <- xvals
+
+names(samsungData)[1:12]
+
+table(samsungData$activity)
+```
+We can do really quickly is just to look at the average acceleration for the first subject. Convert the activity variable into a factor variable. And then using the transform function. And them I'm going to just subset out the the first subject. So subject equals one and I'm, for the rest of this presentation I'm just going to ignore the rest of the subjects for a moment.
+And then the second plot here is going to be the, body excel, the mean body acceleration in the y direction and, and I've color coded each of the, activities
+
+And so you can see that, for example, the mean body acceleration is ah,relatively kind of uninteresting for things like sit,standing and sitting and laying. But for things like walking and working down and walking up, there's much more variability. In the, in the mean body acceleration for the x direction.
+
+```{r , message=FALSE}
+par(mfrow = c(1,2),mar = c (5,4,1,1))
+samsungData <- transform(samsungData,activity = factor(activity))
+sub1 <- subset(samsungData,subject ==1)
+plot(sub1[,1],col = sub1$activity, ylab = names(sub1)[1])
+plot(sub1[,2],col = sub1$activity, ylab = names(sub1)[2])
+legend("bottomright",legend = unique(sub1$activity),col = unique(sub1$activity),pch = 1)
+```
+
+Clustering based just on average acceleration. We are going to use one external function to better show the results on the dendogram. And you can see that the clustering is a little bit messy. And there isn't any kind of clear pattern going on. All the colors are kind of jumbled together at the bottom. And so we might need to look a little bit further to try and kind of extract more information out of here.
+
+
+```{r , message=FALSE}
+source("myplclust.R")
+distanceMatrix <- dist(sub1[,1:3])
+hclustering <- hclust(distanceMatrix)
+myplclust(hclustering, lab.col = unclass(sub1$activity))
+```
+
+Plotting max acceleration for the first subject. Column 10 is the body, the maximum body acceleration in the x direction, and, and column 11 is the maximum body acceleration in the y direction. And so you can see that again for things like laying and standing and sitting, there's not a lot of interesting things going on, but for walking in, and walking up, and walking down, the maximum acceleration shows a lot of variability. So that may,may be a predictor of those kinds of activities. Here's two very clear clusters on the left hand side, you've got the, kind of the various walking activities. And on the right hand side you've got the various, you know, non moving activities, laying, standing, and sitting.
+
+A cluster based on maximum acceleration seems to separate out moving from non moving
+
+```{r , message=FALSE}
+par(mfrow = c(1,2))
+plot(sub1[,10],pch = 19, col = sub1$activity, ylab = names(sub1)[10])
+plot(sub1[,11],pch = 19, col = sub1$activity, ylab = names(sub1)[11])
+```
+
+Singular value decomposition on this data, just to explore what's going on. I'm going to do it on the entire matrix, which is 560 something um,columns. I'm going to remove the last two, the last two columns are just the activity identifier and the subject identifier which are not real interesting data. So I, I get rid of the five, the columns 562 and 63 and then I run the SVD on the data.
+
+first and the second left singular vectors and color code them by activity. And again, you can kind of see there's a similar type of pattern. The first singular vector really seems to separate out the moving from the non moving. So you can see that there's a, a kind of a green, red, black on the bottom. And the blue, turquoise, magenta on the top.
+
+the second left singular vector seems to be separating out The magenta color from all the other clusters and so it is walking. And so it's not clear what is different about that, that it kind of highlights, that gets highlighted on the second singular vector here.
+
+```{r , message=FALSE}
+svd1 = svd(scale(sub1[, -c(562,563)]))
+par(mfrow = c(1,2))
+plot(svd1$u[,1], col = sub1$activity,pch=19)
+plot(svd1$u[,2], col = sub1$activity,pch=19)
+
+```
+
+One of the things we can try to do is try to find the maximum contributors,in the second right singular vector, we can try to figure out well which of these features is kind of producing the most variation, or is contributing to the most
+
+```{r , message=FALSE}
+plot(svd1$v[,2],pch = 19)
+
+```
+
+We can use the which.max function to figure out okay, which of the 500 or so features corresponds to the, the, the kind of largest, or contributes most of the variations across observations, and I say that to an object called maxContrib. And then I'll cluster based on the maximum acceleration plus this extra feature and I'll, and I'll calculate the distance matrix to run the h plus function and you can see now the kind of various activities seem to be separating out a little bit more, at least the three movement activities have clearly been separated. We've got the magenta, the dark blue and the turquoise all separated out the various non moving activities seem to be all kind of mixed together too so the, whatever this maximum contributor happened to be it didn't really help to separate out the non moving activities. But it seemed to help a lot in terms of separating out the movement activities.
+
+```{r , message=FALSE}
+maxContrib <- which.max(svd1$v[,2])
+distanceMatrix <- dist(sub1[,c(10:12,maxContrib)])
+hclustering <- hclust(distanceMatrix)
+myplclust(hclustering, lab.col = unclass(sub1$activity))
+
+```
+
+We can try another clustering technique here which is K-means clustering. you have to be a little bit careful about is that you can get kind of different answers depending on, you know how many times,starting values you've tried and how and how often you run it so whenever you, when you start k-means it has to chose a starting point for where the cluster centers are often it will just chose, most algorithms will chose a random starting point. So if you chose a random starting point you may get to a solution that is suboptimal. So if you chose a different starting point you may get to an even better solution.
+
+I 've specified six centers, so I know that there are six clusters. So I'll just specify them right away. And you can see that the, some of the clusters kind of jumble together. So you can see cluster three is a combination of laying, sitting, and standing. Whereas cluster one is walking, cluster, clearly walking. Cluster two is walking down. Cluster four is walking up. Cluster five is just walking. And again, and cluster six is a mixture of laying, sitting and standing. And so you can see there, k-means here had a little bit, had trouble separating out also the laying, sitting and standing from the, the three, the in, in, in the clusters.
+
+```{r , message=FALSE}
+kClust <- kmeans(sub1[,-c(562,563)],centers = 6)
+table(kClust$cluster,sub1$activity)
+
+```
+
+If we try again in a second round, cluster two for example It's a mixture of laying, sitting and standing, cluster five similarly a mixture of sitting and standing, but some of the, but the other clusters seem to, the other activities seem to cluster out very, easily.
+
+```{r , message=FALSE}
+kClust <- kmeans(sub1[,-c(562,563)],centers = 6, nstart = 1)
+table(kClust$cluster,sub1$activity)
+
+```
+
+So now if we try 100 different starting values, and take you know, take the, the most, the optimal solution from this 100. You see that things seem to separate out a little bit better. You can see cluster one is a mixture again of laying, sitting, and standing. Cluster two is clearly laying. Cluster three is clearly walking and cluster four is walking down and so you can see how these things kind of cluster together and I'll do a second try with 100 starting values. And you see, this is going to, probably going to be our best effort. 
+
+```{r , message=FALSE}
+kClust <- kmeans(sub1[,-c(562,563)],centers = 6, nstart = 100)
+table(kClust$cluster,sub1$activity)
+
+```
+
+I'll do a second try with 100 starting values. And you see, this is going to, probably going to be our best effort. And cluster six still is a mixture of three activities, and cluster five is a mixture of two. 
+
+```{r , message=FALSE}
+kClust <- kmeans(sub1[,-c(562,563)],centers = 6, nstart = 100)
+table(kClust$cluster,sub1$activity)
+
+```
+
+So you can see kind of, can see where the kind of cluster centers are. And the idea is that each of the clusters Has a mean value or a center in a, in this 500 dimensional space. And so we can see kind of which features of these 500 features seem to drive the location of the center for that given cluster. And then, that will help us, help give us some idea of you know what features. Seem to be important for classifying people in that cluster, or classifying observations in that cluster. So for in the first cluster here, which seems to correspond to laying, you can see that the center has a, a relatively high value for a high, or positive values for the first three features, which is kind of the mean body acceleration. And low values for some of the other features.
+
+Cluster 1 Variable Centers (Laying)
+
+```{r , message=FALSE}
+plot(kClust$center[1,1:10], pch = 19, ylab = "Cluster Center", xlab = "Laying")
+```
+
+Cluster 2 Variable Centers (Walking)
+
+```{r , message=FALSE}
+plot(kClust$center[4,1:10], pch = 19, ylab = "Cluster Center", xlab = "Walking")
+```
+
+We seem to be able to kind of separate those out into separate clusters. Usually just a few variables most of them max accelerations variables. But the non movement kind of activities seem to harder to separate out. So, the nice thing about the exploratory data analysis is that it gives you this rough cut, that tells you kind of where to spend your energy.
