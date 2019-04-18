@@ -1,0 +1,158 @@
+---
+title: "Simultation Example"
+author: "Miguel Angel Huerta"
+date: "6 de marzo de 2018"
+#output:
+  #word_document: default
+  #pdf_document: default
+  #html_document: default
+output: 
+       rmdformats::readthedown
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+
+##  Simulation Exercise Instructions 
+
+In this project you will investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. Set lambda = 0.2 for all of the simulations. You will investigate the distribution of averages of 40 exponentials. Note that you will need to do a thousand simulations.
+
+1.- Show the sample mean and compare it to the theoretical mean of the distribution.
+
+```{r simmulation}
+library(ggplot2)
+n=40
+lambda =.2
+mu <- 1/lambda
+s <- 1/lambda
+sim <- 1000 
+
+obs <- rexp(n,lambda)
+
+plot(obs, pch=20, cex=0.6, main=paste0("The exponential distribution with lambda ",lambda," and ",n," observations"))
+abline(h=mean(obs), col="red", lwd=3, lty=2)
+text(100, 30, paste("Actual mean = ", round(mean(obs),2), "\n Theoretical mean = ",mu ), col="red")
+# theoretical mean  vs sample mean
+print (paste("Population mean: ", mu, ", Sample mean: ", round(mean(obs) ,4) ) )
+
+hist(rexp(n,lambda), main=paste0("Histogram of ",n," exponential observations"))
+abline(v=mean(obs), col="red", lwd=3, lty=2)
+abline(v=mu, col="green", lwd=3, lty=2)
+text(10,10, paste("Actual mean = ", round(mean(obs),2)), col="red")
+text(10,9, paste(" ", "\n Theoretical mean = ",mu ), col="green")
+
+```
+```{r simmulation2}
+library(ggplot2)
+sample_size=40
+lambda =.2
+mu <- 1/lambda
+s <- 1/lambda
+num_sim <- 1000 
+
+observations <- matrix(rexp(num_sim * sample_size, rate = lambda), num_sim, sample_size)
+means <- rowMeans(observations)
+
+plot(observations, pch=20, cex=0.6, main=paste0("Exponential distribution with lambda ",lambda,",sample size of ",sample_size," and ",num_sim," simulations"))
+abline(h=mean(observations), col="red", lwd=3, lty=1)
+abline(h=mu, col="green", lwd=3, lty=2)
+text(25, 30, paste("Actual mean = ", round(mean(observations),2)), col="red")
+text(25, 28, paste("Theoretical mean = ",mu ), col="green")
+# theoretical mean  vs sample mean
+print (paste("Population mean: ", mu, ", Sample mean: ", round(mean(observations) ,4) ) )
+
+hist(observations, main=paste0("Histogram of ",n," exponential observations and ",sim," simulations"))
+abline(v=mean(observations), col="red", lwd=3, lty=1)
+abline(v=mu, col="green", lwd=3, lty=2)
+text(20,10000, paste("Actual mean = ", round(mean(observations),2)), col="red")
+text(20,9000, paste("Theoretical mean = ",mu ), col="green")
+
+
+```
+2.- Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.
+
+```{r simm3}
+# theoretical standard deviation vs practical standard deviation
+print (paste("Theoretical standard deviation: ", round( (1/lambda)/sqrt(n) ,4), ", Practical standard deviation", round(sd(means) ,4) ) )
+
+
+# the variance:
+print (paste("Theoretical variance: ", (1/lambda)^2/n, ", Practical variance", round(var(means) ,4) ) )
+```
+
+
+3.- Show 1000 simulaton histogram
+
+```{r simm2}
+library(ggplot2)
+means<-matrix(ncol=1,nrow = 1000)
+for (i in 1:sim){
+ means[i,]<- matrix(mean(rexp(n,lambda)))
+}
+
+hist(means)
+abline(v=mean(means), col="red", lwd=3, lty=2)
+abline(v=mu, col="green", lwd=3, lty=2)
+text(3.6,90, paste("Actual mean = ", round(mean(means),2), "\n Theoretical mean = ",mu ), col="red")
+
+
+```
+
+4.- The sample means distribution follows a teorical normal distribution
+
+```{r simm4}
+#df <- data.frame(x = rnorm(1000, mu))
+df <- data.frame(x = means)
+
+ggplot(df, aes(x)) +
+  geom_histogram(aes(y = ..density..)) +
+  stat_function(fun = dnorm, args = list(mean = mu,sd = s^2/n),lwd = 2, col = 'green')
+```
+
+5.- Final plot with all the information
+
+```{r final}
+
+library(ggplot2)
+sample_size=40
+lambda =.2
+mu <- 1/lambda
+s <- 1/lambda
+num_sim <- 1000 
+
+observations <- matrix(rexp(num_sim * sample_size, rate = lambda), num_sim, sample_size)
+means <- rowMeans(observations)
+
+hist(means, prob = TRUE, main = "Mean Distribution for 40 Exponential observations with 1000 simulations", xlab = "Simulation Mean")
+lines(density(means),col = "red")
+abline(v=mean(means), col="red", lwd=3, lty=1)
+abline(v=mu, col="green", lwd=3, lty=2)
+x_sim <- seq(min(means), max(means), length = 100)
+dist_sim <- dnorm(x_sim, mean = 1/lambda, sd = (1/lambda/sqrt(sample_size)))
+lines(x_sim, dist_sim, pch = 50, col = "green", lty = 5)
+legend('topright', c(paste0("Simulation(",round(mean(means),2),")"), paste0("Theoretical Normal(",mu,")")), 
+       lty = c(1,5), col = c("red", "green"))
+```
+The comparison of the sample distribution with the theoretical normal distribution will be done in the following three ways.
+
+1) we visually compare the graph of the distributions. We can see that the distribution of sample means (the histogram) closely matches a theoretical normal distribution.
+
+2) we need to compare the mean, variance, and confidence intervals between two distributions. In the above sections titled Distribution - Sample Mean vs. Theoretical Mean and Distribution - Sample Variance vs. Theoretical Variance, we compared the mean and variance and showed that they closely match. Now, the confidence intervals:
+
+```{r IC}
+simul_interval <- round(mean(means) + c(-1,1)*1.96*sd(means)/sqrt(sample_size),3)
+theo_interval <- mu + c(-1,1)*1.96*sqrt(s)/sqrt(sample_size)
+```
+
+The 95% confidence interval for the simulation is (4.763, 5.26) while the theoretical 95% confidence interval is (4.755, 5.245). We can conclude that the confidence intervals also closely match each other.
+
+3) we look at the QQ plot, wich also show very similar curve for sample quantiles and theorical quantiles.
+
+```{r QQPLOT}
+qqnorm(means)
+qqline(means)
+```
+

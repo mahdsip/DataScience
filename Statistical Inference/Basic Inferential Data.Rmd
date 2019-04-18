@@ -1,0 +1,110 @@
+---
+title: "Basic Inferential Data Analysis"
+author: "Miguel Angel Huerta"
+date: "12 de marzo de 2018"
+output:
+  #pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+##Part 2: Basic Inferential Data Analysis Instructions
+
+Now in the second portion of the project, we're going to analyze the ToothGrowth data in the R datasets package.
+
+  1.  Load the ToothGrowth data and perform some basic exploratory data analyses
+  2.  Provide a basic summary of the data.
+  3.  Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering)
+  4.  State your conclusions and the assumptions needed for your conclusions.
+
+1.- Exploratory Analysis
+
+```{r Inf1}
+library(ggplot2)
+# Load ToothGrowth data
+data("ToothGrowth")
+head(ToothGrowth)
+str(ToothGrowth)
+summary(ToothGrowth)
+
+ggplot(ToothGrowth, aes(x=factor(dose), y=len, fill=supp)) +
+  geom_bar(stat="identity") +
+  facet_grid(. ~ supp) +
+  xlab("Dose (mg/day)") +
+  ylab("Tooth length") +
+  ggtitle("Tooth Length vs. Dose by Supplement")
+
+ggplot(aes(x=dose, y=len), data=ToothGrowth) + geom_boxplot(aes(fill=factor(dose)))+ facet_grid(~ supp)+ xlab("Supplement") + ylab("Tooth Length") + ggtitle("Tooth Length vs. Dose by Supplement")+   theme(plot.title = element_text(lineheight=.8, face="bold"))
+
+ggplot(ToothGrowth, aes(x=factor(supp), y=len, fill=dose)) +
+  geom_bar(stat="identity") +
+  facet_grid(. ~ dose) +
+  xlab("Dose (mg/day)") +
+  ylab("Tooth length") +
+  ggtitle("Tooth Length vs. Supplement  by Dose Amount")
+
+ggplot(aes(x=supp, y=len), data=ToothGrowth) + geom_boxplot(aes(fill=supp))+ facet_grid(~ dose)+ xlab("Supplement") + ylab("Tooth Length") + ggtitle("Tooth Length vs. Supplement by Dose Amount")+   theme(plot.title = element_text(lineheight=.8, face="bold"))
+
+
+```
+
+2.- Hyphotesis Testing
+
+Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering)
+
+```{r Inf2}
+# Supplement
+h1 <- t.test(len~supp,data=ToothGrowth)
+h1
+# Supplements with Dose amounts 0.5
+h2 <- t.test(len ~ supp, data = subset(ToothGrowth, dose == 0.5))
+h2
+# Supplements with Dose amounts 1
+h3 <- t.test(len ~ supp, data = subset(ToothGrowth, dose == 1))
+h3
+# Supplements with Dose amounts 2
+h4 <- t.test(len ~ supp, data = subset(ToothGrowth, dose == 2))
+h4
+```
+
+3.- Conclusions
+State your conclusions and the assumptions needed for your conclusions.
+
+**Hypothesis1: One supplement delivers more tooth growth than the other**
+```{r conc1}
+h1$conf.int
+
+paste0("The P value ",h1$p.value,"> 0.05, we cannot reject the null hypothesis since there is no statisical significance. ")
+```
+
+**REJECTED**
+
+**Hypothesis2: One supplement delivers more tooth growth than the other at dose 0.5**
+```{r conc2}
+h2$conf.int
+h2$p.value
+paste0("The P value ",h2$p.value,"< 0.05, the difference is statistically significant so we can reject the null hypothesis.The alternative hypothesis that one supplement delivers more tooth growth than the other at  0.5 mg/day  is accepted. ")
+```
+**ACCEPTED**
+
+**Hypothesis3: One supplement delivers more tooth growth than the other at dose 1**
+```{r conc3}
+h3$conf.int
+h3$p.value
+paste0("The P value ",h3$p.value,"< 0.05, the difference is statistically significant so we can reject the null hypothesis.The alternative hypothesis that one supplement delivers more tooth growth than the other at  1 mg/day  is accepted. ")
+```
+**ACCEPTED**
+
+**Hypothesis4: One supplement delivers more tooth growth  at dose 2**
+```{r conc4}
+h4$conf.int
+h4$p.value
+paste0("The P value ",h1$p.value,"> 0.05, we cannot reject the null hypothesis since there is no statisical significance. ")
+```
+**REJECTED**
+
+**FINAL CONCLUSION**
+
+We can ensure with less than a %5 of coincidence that at doses of 0.5 mg/day and 1mg/day the tooth length is greater with OJ supplement- than with VC.
+
+
